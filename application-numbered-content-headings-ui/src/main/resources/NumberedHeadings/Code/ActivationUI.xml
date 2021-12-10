@@ -215,7 +215,7 @@ require(['jquery', 'NumberedHeadingsConfig', 'bootstrap'], function($, config) {
       <parse>1</parse>
     </property>
     <property>
-      <use>onDemand</use>
+      <use>always</use>
     </property>
   </object>
   <object>
@@ -345,37 +345,26 @@ require(['jquery', 'NumberedHeadingsConfig', 'bootstrap'], function($, config) {
       <content>{{template name="display_macros.vm" /}}
 
 {{velocity}}
-#set ($discard = $xwiki.jsfx.use('uicomponents/edit/editableProperty.js', {'forceSkinAction': true, 'language': $xcontext.locale}))
-#set ($discard = $xwiki.jsx.use('NumberedHeadings.Code.ActivationUI', {'language': $xcontext.locale}))
+## On-demand activation seems to be broken, therefore currently globally activated
+##set ($discard = $xwiki.jsx.use('NumberedHeadings.Code.ActivationUI', {'language': $xcontext.locale}))
 
 {{html clean="false"}}
-&lt;div id="headingscontent" class="xwikiintracontent"&gt;
-  &lt;div id="_headings" class="row xform"&gt;
-    &lt;dl&gt;
       &lt;dt#if ($hasEdit) class="editableProperty"#end data-property="NumberedHeadings.Code.NumberedHeadingsClass.status"
       data-property-type="object" data-object-policy="updateOrCreate"&gt;
         &lt;label&gt;$escapetool.xml($services.localization.render('numbered.headings.activationUI.label'))&lt;/label&gt;
       &lt;/dt&gt;
       &lt;dd&gt;#displayObjectProperty('NumberedHeadings.Code.NumberedHeadingsClass.status' 'view' true)&lt;/dd&gt;
-    &lt;/dl&gt;
-  &lt;div class="clearfloats"&gt;&amp;nbsp;&lt;/div&gt;
-  &lt;/div&gt;## _headings
-&lt;/div&gt;## headingscontent
 {{/html}}
 {{/velocity}}</content>
     </property>
     <property>
-      <extensionPointId>org.xwiki.plaftorm.template.docextra</extensionPointId>
+      <extensionPointId>org.xwiki.platform.template.information</extensionPointId>
     </property>
     <property>
-      <name>org.xwiki.contrib.numbered.headings.docextra</name>
+      <name>org.xwiki.contrib.numbered.headings.information</name>
     </property>
     <property>
-      <parameters>show=true
-title=$services.localization.render('numbered.headings.activationUI.parameters.title')
-itemnumber=-1
-name=heading
-order=1000</parameters>
+      <parameters>order=850</parameters>
     </property>
     <property>
       <scope>wiki</scope>
@@ -508,10 +497,12 @@ order=1000</parameters>
       <content>{{template name="display_macros.vm" /}}
 
 {{velocity}}
-; {{html}}&lt;label for="NumberedHeadings.Code.NumberedHeadingsClass_0_status"&gt;$escapetool.xml($services.localization.render('numbered.headings.activationUI.label'))&lt;/label&gt;{{/html}}
-: {{html clean="false"}}
+{{html clean="false"}}
+&lt;dt&gt;&lt;label for="NumberedHeadings.Code.NumberedHeadingsClass_0_status"&gt;$escapetool.xml($services.localization.render('numbered.headings.activationUI.label'))&lt;/label&gt;&lt;/dt&gt;
+&lt;dd&gt;
 #displayObjectProperty('NumberedHeadings.Code.NumberedHeadingsClass.status' 'edit' true)
 &lt;input name="objectPolicy" type="hidden" value="updateOrCreate" /&gt;
+&lt;/dd&gt;
 {{/html}}
 {{/velocity}}
 </content>
