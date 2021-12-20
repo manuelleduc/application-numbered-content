@@ -20,15 +20,15 @@
 package org.xwiki.contrib.numbered.content.headings.internal;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.xwiki.bridge.DocumentAccessBridge;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.context.Execution;
+import org.xwiki.contrib.numbered.content.HierarchicalConfiguration;
 import org.xwiki.contrib.numbered.content.headings.NumberedHeadingsConfiguration;
-import org.xwiki.model.reference.DocumentReference;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -48,7 +48,7 @@ import static com.xpn.xwiki.XWikiContext.EXECUTIONCONTEXT_KEY;
 public class DefaultNumberedHeadingsConfiguration implements NumberedHeadingsConfiguration
 {
     @Inject
-    private DocumentAccessBridge documentAccessBridge;
+    private HierarchicalConfiguration hierarchicalConfiguration;
 
     @Inject
     private Execution execution;
@@ -56,16 +56,9 @@ public class DefaultNumberedHeadingsConfiguration implements NumberedHeadingsCon
     @Override
     public boolean isNumberedHeadingsEnabled() throws Exception
     {
-        XWikiDocument doc = getDocFromContext();
-        if (doc == null) {
-            return false;
-        }
-        if (isNumbered(doc)) {
-            return true;
-        }
-        return isNumbered(doc.getParentReference());
+        return this.hierarchicalConfiguration.resolve(getDocFromContext(), this::isNumbered);
     }
-    
+
     @Override
     public boolean isNumberedHeadingsEnabledOnParent() throws Exception
     {
@@ -74,7 +67,8 @@ public class DefaultNumberedHeadingsConfiguration implements NumberedHeadingsCon
             return false;
         }
 
-        return isNumbered(doc.getParentReference());
+        return this.hierarchicalConfiguration.resolve(doc.getDocumentReference().getParent(),
+            this::isNumbered);
     }
 
     private XWikiDocument getDocFromContext()
@@ -86,44 +80,20 @@ public class DefaultNumberedHeadingsConfiguration implements NumberedHeadingsCon
         return property.getDoc();
     }
 
-    /**
-     * Checks if a document has numbered headings activated by looking at the presence of an XObject of type {@link
-     * NumberedHeadingsClassDocumentInitializer#STATUS_PROPERTY}.
-     *
-     * @param documentReference the document reference to check
-     * @return {@code true} if the numbered headings are activated in the document, {@code false} otherwise
-     * @throws Exception in case of error when access the document instance though the document bridge
-     */
-    private boolean isNumbered(DocumentReference documentReference) throws Exception
-    {
-        if (documentReference != null) {
-            DocumentReference currentReference = documentReference;
-            do {
-                XWikiDocument actualDoc =
-                    (XWikiDocument) this.documentAccessBridge.getDocumentInstance(currentReference);
-                if (isNumbered(actualDoc)) {
-                    return true;
-                }
-                currentReference = actualDoc.getParentReference();
-            } while (currentReference != null);
-        }
-        return false;
-    }
-
-    private boolean isNumbered(XWikiDocument actualDoc)
+    private Optional<Boolean> isNumbered(XWikiDocument actualDoc)
     {
         BaseObject xObject = actualDoc.getXObject(NumberedHeadingsClassDocumentInitializer.REFERENCE);
         // We stop as soon as we find an object.
-        boolean isNumbered = false;
+        Optional<Boolean> ret = Optional.empty();
         if (xObject != null) {
             String activatePropertyValue =
                 xObject.getStringValue(NumberedHeadingsClassDocumentInitializer.STATUS_PROPERTY);
             // If the value is inherits, we continue looking up the hierarchy, otherwise we use the configured 
             // activation setting.
             if (!Objects.equals(activatePropertyValue, "inherits")) {
-                isNumbered = Objects.equals(activatePropertyValue, "activated");
+                ret = Optional.of(Objects.equals(activatePropertyValue, "activated"));
             }
         }
-        return isNumbered;
+        return ret;
     }
 }

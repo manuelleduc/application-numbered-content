@@ -89,7 +89,32 @@
           <analysisConfiguration>
             <revapi.differences>
               <criticality>highlight</criticality>
-              <differences></differences>
+              <differences>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.class.externalClassExposedInAPI</code>
+                  <new>class com.xpn.xwiki.XWiki</new>
+                  <justification>False positive.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.class.externalClassExposedInAPI</code>
+                  <new>class com.xpn.xwiki.XWikiConfig</new>
+                  <justification>False positive.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.class.externalClassExposedInAPI</code>
+                  <new>class com.xpn.xwiki.XWikiContext</new>
+                  <justification>False positive.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.class.externalClassExposedInAPI</code>
+                  <new>class com.xpn.xwiki.XWikiException</new>
+                  <justification>False positive.</justification>
+                </item>
+              </differences>
             </revapi.differences>
           </analysisConfiguration>
         </configuration>
